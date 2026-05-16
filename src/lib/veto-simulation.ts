@@ -200,3 +200,67 @@ export const DEMO_SEQUENCE: RiskLevel[] = [
   "critical",
   "critical",
 ];
+
+// Scripted story for the headline demo.
+// "An AI dev agent tries to clean up unused tables. It targets production-db.
+//  Veto intercepts. Detects destructive impact. Requires approval. Human denies.
+//  Final state: Production database protected."
+export type StoryBeat = {
+  delayMs: number;
+  caption: string;
+  patch: Partial<AgentAction> & Pick<AgentAction, "id">;
+};
+
+const STORY_ID = "act_story_prod_db_cleanup";
+
+export const STORY_INITIAL: AgentAction = {
+  id: STORY_ID,
+  ts: Date.now(),
+  agent: "Cursor Agent",
+  agentIcon: "▲",
+  tool: "postgres.execute",
+  summary: "DROP TABLE unused_tmp_* on production-db-east-1",
+  reasoning:
+    "Agent was asked to clean up unused tables flagged by the disk usage report. It iterated the candidate list and resolved the connection string to the closest reachable cluster — which turned out to be production-db-east-1, not the staging clone.",
+  rawCall: `postgres.execute({
+  cluster: "production-db-east-1",
+  query: \`
+    DROP TABLE IF EXISTS unused_tmp_users CASCADE;
+    DROP TABLE IF EXISTS unused_tmp_orders CASCADE;
+    DROP TABLE IF EXISTS unused_tmp_sessions CASCADE;
+  \`
+})`,
+  resources: ["production-db-east-1", "users", "orders", "sessions"],
+  blastRadius:
+    "Irreversible. 412,118 active users. 1.2B rows across 3 tables. Latest verified snapshot is 14 minutes old. Estimated revenue impact: $48,000/min during outage.",
+  confidence: 0.71,
+  riskScore: 98,
+  riskLevel: "critical",
+  status: "intercepted",
+  policyViolations: [
+    "P-001 Require approval before deleting production databases",
+    "P-002 Destructive DDL on production",
+    "P-014 No staging dry-run executed",
+  ],
+  recommendation:
+    "DENY. Suggest re-running against staging-db-east-1 with --dry-run, then schedule a maintenance window for any verified deletions.",
+};
+
+export const STORY_BEATS: StoryBeat[] = [
+  {
+    delayMs: 900,
+    caption: "Agent issues destructive query against production-db",
+    patch: { id: STORY_ID, status: "intercepted" },
+  },
+  {
+    delayMs: 1400,
+    caption: "Veto detects destructive production impact",
+    patch: { id: STORY_ID, status: "intercepted" },
+  },
+  {
+    delayMs: 1200,
+    caption: "Risk classified CRITICAL · approval required",
+    patch: { id: STORY_ID, status: "pending" },
+  },
+];
+
