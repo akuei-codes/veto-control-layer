@@ -124,8 +124,9 @@ function CommandCenter() {
           </button>
         </>
       }
+      fullBleed
     >
-      <div className="px-8 py-6">
+      <div className="px-8 py-6 max-w-[1600px] mx-auto">
         {/* Hero */}
         <motion.section
           initial={{ opacity: 0, y: 8 }}
