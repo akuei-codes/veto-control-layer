@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as PoliciesRouteImport } from './routes/policies'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
@@ -37,11 +36,6 @@ const ReplayRoute = ReplayRouteImport.update({
 const PoliciesRoute = PoliciesRouteImport.update({
   id: '/policies',
   path: '/policies',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IntegrationsRoute = IntegrationsRouteImport.update({
@@ -101,7 +95,6 @@ export interface FileRoutesByFullPath {
   '/approvals': typeof ApprovalsRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
   '/policies': typeof PoliciesRoute
   '/replay': typeof ReplayRoute
   '/settings': typeof SettingsRoute
@@ -117,7 +110,6 @@ export interface FileRoutesByTo {
   '/approvals': typeof ApprovalsRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
   '/policies': typeof PoliciesRoute
   '/replay': typeof ReplayRoute
   '/settings': typeof SettingsRoute
@@ -134,7 +126,6 @@ export interface FileRoutesById {
   '/approvals': typeof ApprovalsRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
   '/policies': typeof PoliciesRoute
   '/replay': typeof ReplayRoute
   '/settings': typeof SettingsRoute
@@ -152,7 +143,6 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/docs'
     | '/integrations'
-    | '/onboarding'
     | '/policies'
     | '/replay'
     | '/settings'
@@ -168,7 +158,6 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/docs'
     | '/integrations'
-    | '/onboarding'
     | '/policies'
     | '/replay'
     | '/settings'
@@ -184,7 +173,6 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/docs'
     | '/integrations'
-    | '/onboarding'
     | '/policies'
     | '/replay'
     | '/settings'
@@ -201,7 +189,6 @@ export interface RootRouteChildren {
   ApprovalsRoute: typeof ApprovalsRoute
   DocsRoute: typeof DocsRoute
   IntegrationsRoute: typeof IntegrationsRoute
-  OnboardingRoute: typeof OnboardingRouteWithChildren
   PoliciesRoute: typeof PoliciesRoute
   ReplayRoute: typeof ReplayRoute
   SettingsRoute: typeof SettingsRoute
@@ -232,13 +219,6 @@ declare module '@tanstack/react-router' {
       path: '/policies'
       fullPath: '/policies'
       preLoaderRoute: typeof PoliciesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/integrations': {
@@ -314,25 +294,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface OnboardingRouteChildren {
-  OnboardingWorkspaceRoute: typeof OnboardingWorkspaceRoute
-}
-
-const OnboardingRouteChildren: OnboardingRouteChildren = {
-  OnboardingWorkspaceRoute: OnboardingWorkspaceRoute,
-}
-
-const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
-  OnboardingRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   ApprovalsRoute: ApprovalsRoute,
   DocsRoute: DocsRoute,
   IntegrationsRoute: IntegrationsRoute,
-  OnboardingRoute: OnboardingRouteWithChildren,
   PoliciesRoute: PoliciesRoute,
   ReplayRoute: ReplayRoute,
   SettingsRoute: SettingsRoute,
@@ -344,3 +311,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
