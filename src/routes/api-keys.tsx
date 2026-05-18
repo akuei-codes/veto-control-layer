@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { AppShell } from "@/components/veto/AppShell";
+import { useVetoApiKeys, vetoActions } from "@/lib/veto-store";
 
 export const Route = createFileRoute("/api-keys")({
   head: () => ({ meta: [{ title: "API Keys — Veto" }] }),
