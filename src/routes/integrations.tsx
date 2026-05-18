@@ -221,9 +221,7 @@ function Tabs({
     </div>
   );
 }
-
-
-
+function ConnectionStatus() {
   const [connected, setConnected] = useState(false);
   return (
     <div className="border hairline rounded-md bg-card p-5">
