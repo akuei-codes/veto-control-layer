@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import type { AgentAction, ActionStatus } from "@/lib/veto-types";
+import type { AgentAction, ActionStatus } from "@/lib/veto-schema";
 import { RiskTag, StatusPill } from "./StatusPill";
 
 export function InspectionPanel({

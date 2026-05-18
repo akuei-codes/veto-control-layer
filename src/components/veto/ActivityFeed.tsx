@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import type { AgentAction } from "@/lib/veto-types";
+import type { AgentAction } from "@/lib/veto-schema";
 import { RiskTag, StatusPill } from "./StatusPill";
 
 function timeAgo(ts: number) {

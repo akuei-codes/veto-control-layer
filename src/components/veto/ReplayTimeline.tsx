@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import type { AgentAction } from "@/lib/veto-types";
+import type { AgentAction } from "@/lib/veto-schema";
 
 export function ReplayTimeline({ action }: { action: AgentAction | null }) {
   const steps = [

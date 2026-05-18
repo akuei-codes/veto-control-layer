@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { AppShell } from "@/components/veto/AppShell";
+import { useVetoApiKeys, vetoActions } from "@/lib/veto-store";
 
 export const Route = createFileRoute("/api-keys")({
   head: () => ({ meta: [{ title: "API Keys — Veto" }] }),
@@ -30,6 +31,7 @@ function makeKeys(env: Env) {
 }
 
 function ApiKeysPage() {
+  const storeKeys = useVetoApiKeys();
   const [env, setEnv] = useState<Env>("development");
   const [keys, setKeys] = useState(() => ({
     development: makeKeys("development"),
@@ -41,6 +43,9 @@ function ApiKeysPage() {
   const regenerate = () => {
     setKeys((c) => ({ ...c, [env]: makeKeys(env) }));
     setRevealed(false);
+    // Record rotation in the central audit log.
+    const target = storeKeys.find((k) => k.environment === env && !k.revoked);
+    if (target) vetoActions.rotateApiKey(target.id);
   };
 
   return (
