@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/veto/AppShell";
-import { CodeBlock } from "@/components/veto/CodeBlock";
+import { CodeBlock as VetoCodeBlock } from "@/components/veto/CodeBlock";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({ meta: [{ title: "Docs — Veto" }] }),
@@ -119,7 +119,7 @@ function DocsPage() {
           {SECTIONS.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-20">
               <h3 className="text-xl font-medium tracking-tight mb-3">{s.title}</h3>
-              <CodeBlock code={s.body} lang={s.lang} />
+              <VetoCodeBlock code={s.body} lang={s.lang} />
             </section>
           ))}
 
