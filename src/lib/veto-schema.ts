@@ -253,6 +253,7 @@ export function eventToAction(e: ActionEvent): AgentAction {
     reasoning: e.reasoning,
     rawCall: e.raw_call,
     resources: e.resources,
+    blastRadius: e.blast_radius,
     confidence: e.risk.confidence,
     riskScore: e.risk.score,
     riskLevel: e.risk.level,
