@@ -1,4 +1,4 @@
-import type { ActionStatus, RiskLevel } from "@/lib/veto-types";
+import type { ActionStatus, RiskLevel } from "@/lib/veto-schema";
 
 const RISK_LABEL: Record<RiskLevel, string> = {
   low: "LOW",
