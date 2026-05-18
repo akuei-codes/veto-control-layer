@@ -186,12 +186,12 @@ export const vetoActions = {
   decide(eventId: string, decision: Extract<ActionStatus, "approved" | "denied" | "escalated" | "blocked">, note?: string) {
     const now = new Date().toISOString();
     set((s) => {
-      const events = s.events.map((e) =>
+      const events = s.events.map((e): ActionEvent =>
         e.id === eventId
           ? {
               ...e,
               status: decision,
-              phase: decision === "approved" ? "executed" : "terminated",
+              phase: decision === "approved" ? ("executed" as const) : ("terminated" as const),
               decided_at: now,
               decided_by: s.user.id,
               decision_note: note,
