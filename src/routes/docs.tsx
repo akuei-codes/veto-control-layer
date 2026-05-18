@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/veto/AppShell";
-import { CodeBlock } from "./integrations";
+import { CodeBlock } from "@/components/veto/CodeBlock";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({ meta: [{ title: "Docs — Veto" }] }),
