@@ -1,14 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useVetoOrg, useVetoPendingCount, useVetoUnreadCount, useVetoWorkspace } from "@/lib/veto-store";
 
-type Item = { to: string; label: string; icon: string; badge?: number };
+type Item = { to: string; label: string; icon: string; badgeKey?: "pending" | "unread" };
 
 const SECTIONS: { title: string; items: Item[] }[] = [
   {
     title: "Operate",
     items: [
       { to: "/", label: "Command Center", icon: "◎" },
-      { to: "/approvals", label: "Approvals", icon: "▮", badge: 3 },
+      { to: "/approvals", label: "Approvals", icon: "▮", badgeKey: "pending" },
       { to: "/replay", label: "Replay", icon: "◐" },
     ],
   },
