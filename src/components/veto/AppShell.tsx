@@ -1,6 +1,8 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { Sidebar } from "./Sidebar";
+import { useVetoNotifications, useVetoUnreadCount, vetoActions } from "@/lib/veto-store";
 
 export function AppShell({
   children,
@@ -18,7 +20,6 @@ export function AppShell({
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // First-run gate: send to /onboarding unless completed
   useEffect(() => {
     if (typeof window === "undefined") return;
     const done = window.localStorage.getItem("veto.onboarded");
@@ -50,12 +51,91 @@ export function AppShell({
                 </h1>
               )}
             </div>
-            <div className="flex items-center gap-2">{actions}</div>
+            <div className="flex items-center gap-2">
+              {actions}
+              <NotificationBell />
+            </div>
           </header>
         )}
 
         <main className={fullBleed ? "" : "px-8 py-8 max-w-[1400px] mx-auto"}>{children}</main>
       </div>
+    </div>
+  );
+}
+
+function NotificationBell() {
+  const [open, setOpen] = useState(false);
+  const notifs = useVetoNotifications();
+  const unread = useVetoUnreadCount();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => {
+          setOpen((o) => !o);
+          if (!open) vetoActions.markAllNotificationsRead();
+        }}
+        className="relative font-mono text-[11px] uppercase tracking-[0.2em] px-2.5 py-2 border border-foreground/15 rounded-sm hover:border-foreground/40 transition-colors"
+        aria-label="Notifications"
+      >
+        ◔
+        {unread > 0 && (
+          <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-1 grid place-items-center rounded-full bg-[var(--color-risk-critical)] text-background font-mono text-[9px] tabular-nums">
+            {unread}
+          </span>
+        )}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            className="absolute right-0 mt-2 w-[340px] max-h-[420px] overflow-y-auto border hairline rounded-md bg-card shadow-2xl z-30"
+          >
+            <div className="px-4 py-2 border-b hairline font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Notifications
+            </div>
+            {notifs.length === 0 ? (
+              <div className="p-6 text-center text-muted-foreground font-mono text-[10px] tracking-widest">
+                ALL CLEAR
+              </div>
+            ) : (
+              <ul>
+                {notifs.map((n) => (
+                  <li key={n.id} className="px-4 py-3 border-b hairline last:border-0">
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <span
+                        className="font-mono text-[9px] uppercase tracking-[0.2em]"
+                        style={{
+                          color:
+                            n.level === "critical"
+                              ? "var(--color-risk-critical)"
+                              : n.level === "warning"
+                                ? "var(--color-risk-medium)"
+                                : n.level === "success"
+                                  ? "var(--color-risk-low)"
+                                  : "var(--muted-foreground)",
+                        }}
+                      >
+                        {n.kind.replace("_", " ")}
+                      </span>
+                      <span className="font-mono text-[9px] text-muted-foreground tabular-nums">
+                        {new Date(n.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <div className="text-[12px] text-foreground/90 truncate">{n.title}</div>
+                    {n.body && (
+                      <div className="text-[11px] text-muted-foreground truncate mt-0.5">{n.body}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

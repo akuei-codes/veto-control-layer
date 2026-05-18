@@ -1,14 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useVetoOrg, useVetoPendingCount, useVetoUnreadCount, useVetoWorkspace } from "@/lib/veto-store";
 
-type Item = { to: string; label: string; icon: string; badge?: number };
+type Item = { to: string; label: string; icon: string; badgeKey?: "pending" | "unread" };
 
 const SECTIONS: { title: string; items: Item[] }[] = [
   {
     title: "Operate",
     items: [
       { to: "/", label: "Command Center", icon: "◎" },
-      { to: "/approvals", label: "Approvals", icon: "▮", badge: 3 },
+      { to: "/approvals", label: "Approvals", icon: "▮", badgeKey: "pending" },
       { to: "/replay", label: "Replay", icon: "◐" },
     ],
   },
@@ -31,6 +32,12 @@ const SECTIONS: { title: string; items: Item[] }[] = [
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const org = useVetoOrg();
+  const workspace = useVetoWorkspace();
+  const pendingCount = useVetoPendingCount();
+  const unreadCount = useVetoUnreadCount();
+  const badgeFor = (k?: Item["badgeKey"]) =>
+    k === "pending" ? pendingCount : k === "unread" ? unreadCount : 0;
 
   return (
     <aside className="hidden md:flex flex-col w-[232px] shrink-0 border-r hairline bg-background/60 backdrop-blur-xl sticky top-0 h-screen">
@@ -47,11 +54,13 @@ export function Sidebar() {
       <div className="px-3 py-4 border-b hairline">
         <button className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-sm hover:bg-surface-2 transition-colors group">
           <div className="w-6 h-6 rounded-sm bg-surface-2 grid place-items-center font-mono text-[10px] text-foreground">
-            AC
+            {org.name.slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 text-left min-w-0">
-            <div className="font-mono text-[11px] text-foreground truncate">Acme Corp</div>
-            <div className="font-mono text-[9px] text-muted-foreground tracking-widest">PRODUCTION</div>
+            <div className="font-mono text-[11px] text-foreground truncate">{org.name}</div>
+            <div className="font-mono text-[9px] text-muted-foreground tracking-widest uppercase">
+              {workspace.environment}
+            </div>
           </div>
           <span className="font-mono text-[10px] text-muted-foreground group-hover:text-foreground">⌄</span>
         </button>
@@ -66,6 +75,7 @@ export function Sidebar() {
             <ul className="space-y-0.5">
               {s.items.map((item) => {
                 const active = pathname === item.to;
+                const badge = badgeFor(item.badgeKey);
                 return (
                   <li key={item.to} className="relative">
                     {active && (
@@ -83,9 +93,9 @@ export function Sidebar() {
                     >
                       <span className="font-mono text-[11px] w-3 text-center opacity-70">{item.icon}</span>
                       <span className="flex-1">{item.label}</span>
-                      {item.badge !== undefined && (
+                      {badge > 0 && (
                         <span className="font-mono text-[9px] tabular-nums px-1.5 py-0.5 rounded-sm bg-[var(--color-risk-critical)]/15 text-[var(--color-risk-critical)] border border-[var(--color-risk-critical)]/30">
-                          {item.badge}
+                          {badge}
                         </span>
                       )}
                     </Link>

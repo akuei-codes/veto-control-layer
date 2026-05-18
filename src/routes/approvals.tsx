@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { AppShell } from "@/components/veto/AppShell";
 import { RiskTag, StatusPill } from "@/components/veto/StatusPill";
-import { generateAction } from "@/lib/veto-simulation";
-import type { ActionStatus, AgentAction } from "@/lib/veto-types";
+import { useVetoEvents, vetoActions } from "@/lib/veto-store";
+import { eventToAction } from "@/lib/veto-schema";
+import type { ActionStatus, RiskLevel } from "@/lib/veto-schema";
+import { formatImpact, formatUsers } from "@/lib/risk-engine";
 
 export const Route = createFileRoute("/approvals")({
   head: () => ({ meta: [{ title: "Approvals — Veto" }] }),
@@ -12,29 +14,34 @@ export const Route = createFileRoute("/approvals")({
 });
 
 function ApprovalsPage() {
-  const [items, setItems] = useState<AgentAction[]>(() => {
-    // Seed with several pending high/critical actions
-    const seed: AgentAction[] = [];
-    for (let i = 0; i < 12; i++) {
-      const a = generateAction(i % 3 === 0 ? "critical" : i % 3 === 1 ? "high" : "medium");
-      seed.push({ ...a, status: "pending", ts: Date.now() - i * 1000 * 60 * 3 });
-    }
-    return seed;
-  });
-  const [filter, setFilter] = useState<"all" | "critical" | "high" | "medium">("all");
-  const [selectedId, setSelectedId] = useState<string>(items[0]?.id ?? "");
+  const events = useVetoEvents();
+  const items = useMemo(
+    () =>
+      events
+        .filter((e) => e.requires_approval)
+        .map((e) => ({ ev: e, action: eventToAction(e) })),
+    [events],
+  );
 
+  const [filter, setFilter] = useState<"all" | RiskLevel>("all");
   const filtered = useMemo(
-    () => (filter === "all" ? items : items.filter((i) => i.riskLevel === filter)),
+    () => (filter === "all" ? items : items.filter((i) => i.ev.risk.level === filter)),
     [items, filter],
   );
-  const selected = items.find((i) => i.id === selectedId) ?? null;
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!selectedId && filtered[0]) setSelectedId(filtered[0].ev.id);
+  }, [filtered, selectedId]);
+
+  const selected = items.find((i) => i.ev.id === selectedId) ?? null;
+  const pendingCount = items.filter((i) => i.ev.status === "pending" || i.ev.status === "intercepted").length;
 
   const decide = (id: string, status: ActionStatus) => {
-    setItems((c) => c.map((x) => (x.id === id ? { ...x, status } : x)));
+    if (status === "approved" || status === "denied" || status === "escalated" || status === "blocked") {
+      vetoActions.decide(id, status);
+    }
   };
-
-  const pendingCount = items.filter((i) => i.status === "pending").length;
 
   return (
     <AppShell
@@ -49,7 +56,7 @@ function ApprovalsPage() {
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-5">
           <div className="flex items-center gap-1 mb-4">
-            {(["all", "critical", "high", "medium"] as const).map((f) => (
+            {(["all", "critical", "high", "medium", "low"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -64,31 +71,31 @@ function ApprovalsPage() {
 
           <div className="border hairline rounded-md bg-card overflow-hidden">
             <AnimatePresence initial={false}>
-              {filtered.map((a) => {
-                const active = a.id === selectedId;
+              {filtered.map(({ ev, action }) => {
+                const active = ev.id === selectedId;
                 return (
                   <motion.button
-                    key={a.id}
+                    key={ev.id}
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, height: 0 }}
-                    onClick={() => setSelectedId(a.id)}
+                    onClick={() => setSelectedId(ev.id)}
                     className={`relative w-full text-left px-5 py-4 border-b hairline last:border-0 transition-colors ${
                       active ? "bg-surface-2" : "hover:bg-surface"
                     }`}
                   >
                     {active && <span className="absolute left-0 top-0 bottom-0 w-px bg-foreground" />}
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <span className="font-mono text-[11px] text-foreground">{a.agent}</span>
-                      <RiskTag level={a.riskLevel} score={a.riskScore} />
+                      <span className="font-mono text-[11px] text-foreground">{ev.agent_name}</span>
+                      <RiskTag level={ev.risk.level} score={ev.risk.score} />
                     </div>
                     <p className="text-[13px] text-foreground/90 leading-snug mb-2 line-clamp-2">
-                      {a.summary}
+                      {action.summary}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-muted-foreground">{a.tool}</span>
-                      <StatusPill status={a.status} />
+                      <span className="font-mono text-[10px] text-muted-foreground">{ev.tool}</span>
+                      <StatusPill status={ev.status} />
                     </div>
                   </motion.button>
                 );
@@ -106,7 +113,7 @@ function ApprovalsPage() {
           <AnimatePresence mode="wait">
             {selected ? (
               <motion.div
-                key={selected.id}
+                key={selected.ev.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="border hairline rounded-md bg-card overflow-hidden sticky top-20"
@@ -114,56 +121,59 @@ function ApprovalsPage() {
                 <div className="px-6 py-5 border-b hairline">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
-                      REQUEST · {selected.id}
+                      REQUEST · {selected.ev.id}
                     </span>
-                    <StatusPill status={selected.status} />
+                    <StatusPill status={selected.ev.status} />
                   </div>
                   <h3 className="text-xl font-medium tracking-tight leading-snug text-balance">
-                    {selected.summary}
+                    {selected.ev.summary}
                   </h3>
                 </div>
 
                 <div className="px-6 py-5 space-y-5">
-                  <Row label="Agent" value={`${selected.agentIcon}  ${selected.agent}`} />
-                  <Row label="Action" value={selected.tool} mono />
-                  <Row
-                    label="Affected system"
-                    value={selected.resources.join(" · ")}
-                    mono
-                  />
+                  <Row label="Agent" value={`${selected.ev.agent_icon}  ${selected.ev.agent_name}`} />
+                  <Row label="Action" value={selected.ev.tool} mono />
+                  <Row label="Affected system" value={selected.ev.resources.join(" · ")} mono />
                   <div>
                     <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-1.5">
                       Risk
                     </div>
-                    <div className="flex items-center gap-3">
-                      <RiskTag level={selected.riskLevel} score={selected.riskScore} />
-                      <span className="text-[12px] text-muted-foreground">{selected.blastRadius}</span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <RiskTag level={selected.ev.risk.level} score={selected.ev.risk.score} />
+                      <span className="text-[12px] text-muted-foreground">
+                        {selected.ev.blast_radius}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-4 font-mono text-[10px] text-muted-foreground tracking-widest">
+                      <span>USERS · <span className="text-foreground/80 tabular-nums">{formatUsers(selected.ev.risk.estimated_users_affected)}</span></span>
+                      <span>$IMPACT · <span className="text-foreground/80 tabular-nums">{formatImpact(selected.ev.risk.estimated_financial_impact_usd)}</span></span>
+                      <span>REVERSIBILITY · <span className="text-foreground/80">{selected.ev.risk.reversibility}</span></span>
                     </div>
                   </div>
                   <div>
                     <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-1.5">
                       Reason
                     </div>
-                    <p className="text-[13px] text-foreground/85 leading-relaxed">{selected.reasoning}</p>
+                    <p className="text-[13px] text-foreground/85 leading-relaxed">{selected.ev.reasoning}</p>
                   </div>
                 </div>
 
-                {selected.status === "pending" ? (
+                {selected.ev.status === "pending" || selected.ev.status === "intercepted" ? (
                   <div className="px-6 py-4 border-t hairline grid grid-cols-3 gap-2">
                     <button
-                      onClick={() => decide(selected.id, "approved")}
+                      onClick={() => decide(selected.ev.id, "approved")}
                       className="font-mono text-[11px] uppercase tracking-[0.18em] py-2.5 border hairline rounded-sm text-foreground/80 hover:border-foreground/40 hover:text-foreground hover:bg-surface-2"
                     >
                       ✓ Approve
                     </button>
                     <button
-                      onClick={() => decide(selected.id, "escalated")}
+                      onClick={() => decide(selected.ev.id, "escalated")}
                       className="font-mono text-[11px] uppercase tracking-[0.18em] py-2.5 border hairline rounded-sm text-foreground/80 hover:border-foreground/40 hover:text-foreground hover:bg-surface-2"
                     >
                       ◇ Sandbox
                     </button>
                     <button
-                      onClick={() => decide(selected.id, "denied")}
+                      onClick={() => decide(selected.ev.id, "denied")}
                       className="font-mono text-[11px] uppercase tracking-[0.18em] py-2.5 bg-foreground text-background rounded-sm hover:bg-foreground/90"
                     >
                       ✕ Deny
@@ -171,7 +181,7 @@ function ApprovalsPage() {
                   </div>
                 ) : (
                   <div className="px-6 py-4 border-t hairline text-center font-mono text-[11px] tracking-[0.2em] text-muted-foreground">
-                    DECISION RECORDED · {selected.status.toUpperCase()}
+                    DECISION RECORDED · {selected.ev.status.toUpperCase()}
                   </div>
                 )}
               </motion.div>

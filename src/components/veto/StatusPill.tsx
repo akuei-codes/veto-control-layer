@@ -30,12 +30,14 @@ export function RiskTag({ level, score }: { level: RiskLevel; score?: number }) 
 
 const STATUS_STYLES: Record<ActionStatus, { label: string; cls: string }> = {
   intercepted: { label: "INTERCEPTED", cls: "text-foreground/80 border-foreground/20" },
+  analyzing: { label: "ANALYZING", cls: "text-foreground/70 border-foreground/20" },
   pending: { label: "PENDING APPROVAL", cls: "text-[var(--color-risk-medium)] border-[color-mix(in_oklab,var(--color-risk-medium)_40%,transparent)]" },
   approved: { label: "APPROVED", cls: "text-[var(--color-risk-low)] border-[color-mix(in_oklab,var(--color-risk-low)_40%,transparent)]" },
   denied: { label: "DENIED", cls: "text-muted-foreground border-border" },
   executed: { label: "EXECUTED", cls: "text-foreground border-foreground/30" },
   blocked: { label: "BLOCKED", cls: "text-[var(--color-risk-critical)] border-[color-mix(in_oklab,var(--color-risk-critical)_50%,transparent)]" },
   escalated: { label: "ESCALATED", cls: "text-[var(--color-risk-high)] border-[color-mix(in_oklab,var(--color-risk-high)_40%,transparent)]" },
+  expired: { label: "EXPIRED", cls: "text-muted-foreground border-border" },
 };
 
 export function StatusPill({ status }: { status: ActionStatus }) {
