@@ -64,9 +64,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingWorkspaceRoute = OnboardingWorkspaceRouteImport.update({
-  id: '/workspace',
-  path: '/workspace',
-  getParentRoute: () => OnboardingRoute,
+  id: '/onboarding/workspace',
+  path: '/onboarding/workspace',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
   id: '/auth/sign-up',
@@ -196,6 +196,7 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
+  OnboardingWorkspaceRoute: typeof OnboardingWorkspaceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -258,10 +259,10 @@ declare module '@tanstack/react-router' {
     }
     '/onboarding/workspace': {
       id: '/onboarding/workspace'
-      path: '/workspace'
+      path: '/onboarding/workspace'
       fullPath: '/onboarding/workspace'
       preLoaderRoute: typeof OnboardingWorkspaceRouteImport
-      parentRoute: typeof OnboardingRoute
+      parentRoute: typeof rootRouteImport
     }
     '/auth/sign-up': {
       id: '/auth/sign-up'
@@ -307,17 +308,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
+  OnboardingWorkspaceRoute: OnboardingWorkspaceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
