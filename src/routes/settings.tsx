@@ -20,7 +20,7 @@ function SettingsPage() {
   const reset = () => {
     window.localStorage.removeItem("veto.onboarded");
     window.localStorage.removeItem("veto.workspace");
-    window.location.href = "/onboarding";
+    window.location.href = "/onboarding/workspace";
   };
 
   return (
