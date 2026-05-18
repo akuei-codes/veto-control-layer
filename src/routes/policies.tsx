@@ -2,71 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { AppShell } from "@/components/veto/AppShell";
+import { useVetoPolicies, vetoActions } from "@/lib/veto-store";
+import type { Policy, PolicyAction } from "@/lib/veto-schema";
 
 export const Route = createFileRoute("/policies")({
   head: () => ({ meta: [{ title: "Policies — Veto" }] }),
   component: PoliciesPage,
 });
 
-type Policy = {
-  id: string;
-  title: string;
-  description: string;
-  enabled: boolean;
-  category: "Data" | "Secrets" | "Comms" | "Billing" | "Infra";
-  severity: "block" | "approve" | "sandbox";
-};
-
-const DEFAULTS: Policy[] = [
-  {
-    id: "P-001",
-    title: "Require approval before deleting production databases",
-    description: "Any DROP, TRUNCATE or DELETE against a production database cluster must be approved by a human SRE.",
-    enabled: true,
-    category: "Data",
-    severity: "approve",
-  },
-  {
-    id: "P-002",
-    title: "Block access to secrets",
-    description: "Agents may not read raw secrets (API keys, tokens, credentials) into model context.",
-    enabled: true,
-    category: "Secrets",
-    severity: "block",
-  },
-  {
-    id: "P-003",
-    title: "Require approval before emailing more than 100 users",
-    description: "Bulk outbound communication above 100 recipients requires explicit approval.",
-    enabled: true,
-    category: "Comms",
-    severity: "approve",
-  },
-  {
-    id: "P-004",
-    title: "Require approval before modifying billing",
-    description: "Any change to pricing, refunds, subscriptions or invoices must be approved.",
-    enabled: true,
-    category: "Billing",
-    severity: "approve",
-  },
-  {
-    id: "P-005",
-    title: "Sandbox infrastructure changes before execution",
-    description: "Infrastructure mutations (IAM, DNS, network, k8s) are first executed in a sandbox and diffed.",
-    enabled: true,
-    category: "Infra",
-    severity: "sandbox",
-  },
-];
-
 function PoliciesPage() {
-  const [policies, setPolicies] = useState<Policy[]>(DEFAULTS);
+  const policies = useVetoPolicies();
   const [wizard, setWizard] = useState(true);
-
-  const toggle = (id: string) =>
-    setPolicies((c) => c.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p)));
-
+  const toggle = (id: string) => vetoActions.togglePolicy(id);
   const activeCount = policies.filter((p) => p.enabled).length;
 
   return (
@@ -96,8 +43,8 @@ function PoliciesPage() {
                 Start with the policies that prevent the worst outcomes.
               </h2>
               <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-                These five defaults cover ~85% of the destructive actions we see across production AI
-                agents. Toggle off anything that doesn't apply — you can refine later.
+                These defaults cover ~85% of the destructive actions we see across production AI
+                agents. Toggle off anything that doesn&apos;t apply — you can refine later.
               </p>
             </header>
 
@@ -114,11 +61,11 @@ function PoliciesPage() {
                     <Check on={p.enabled} onChange={() => toggle(p.id)} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="font-mono text-[10px] text-muted-foreground">{p.id}</span>
+                        <span className="font-mono text-[10px] text-muted-foreground">{p.code}</span>
                         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/70 px-1.5 py-0.5 border hairline rounded-sm">
                           {p.category}
                         </span>
-                        <SeverityChip s={p.severity} />
+                        <ActionChip a={p.action} />
                       </div>
                       <h3 className={`text-[14px] font-medium leading-snug ${p.enabled ? "text-foreground" : "text-muted-foreground/60 line-through"}`}>
                         {p.title}
@@ -188,13 +135,15 @@ function Check({ on, onChange }: { on: boolean; onChange: () => void }) {
   );
 }
 
-function SeverityChip({ s }: { s: Policy["severity"] }) {
-  const map = {
-    block: ["BLOCK", "var(--color-risk-critical)"],
-    approve: ["APPROVAL", "var(--color-risk-medium)"],
-    sandbox: ["SANDBOX", "var(--color-risk-low)"],
-  } as const;
-  const [label, color] = map[s];
+const ACTION_META: Record<PolicyAction, { label: string; color: string }> = {
+  block: { label: "BLOCK", color: "var(--color-risk-critical)" },
+  approve: { label: "APPROVAL", color: "var(--color-risk-medium)" },
+  sandbox: { label: "SANDBOX", color: "var(--color-risk-low)" },
+  log: { label: "LOG", color: "var(--muted-foreground)" },
+};
+
+function ActionChip({ a }: { a: PolicyAction }) {
+  const { label, color } = ACTION_META[a];
   return (
     <span
       className="font-mono text-[9px] uppercase tracking-[0.2em] px-1.5 py-0.5 rounded-sm border"
@@ -227,7 +176,7 @@ function PolicyManagement({
             key={p.id}
             className="grid grid-cols-12 items-center px-5 py-4 border-b hairline last:border-0 group hover:bg-surface/40 transition-colors"
           >
-            <div className="col-span-1 font-mono text-[11px] text-muted-foreground">{p.id}</div>
+            <div className="col-span-1 font-mono text-[11px] text-muted-foreground">{p.code}</div>
             <div className="col-span-6">
               <div className={`text-[13px] ${p.enabled ? "text-foreground" : "text-muted-foreground/60"}`}>
                 {p.title}
@@ -238,7 +187,7 @@ function PolicyManagement({
               {p.category}
             </div>
             <div className="col-span-2">
-              <SeverityChip s={p.severity} />
+              <ActionChip a={p.action} />
             </div>
             <div className="col-span-1 flex justify-end">
               <Switch on={p.enabled} onChange={() => onToggle(p.id)} />
