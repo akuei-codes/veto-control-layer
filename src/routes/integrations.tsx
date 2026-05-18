@@ -85,7 +85,7 @@ function Integrations() {
               Veto ships SDKs for every major runtime. Install the package your agents already use.
             </p>
             <Tabs value={lang} onChange={(v) => setLang(v as typeof lang)} options={[...LANGS]} />
-            <CodeBlock code={SDK_INSTALL} lang="bash" />
+            <VetoCodeBlock code={SDK_INSTALL} lang="bash" />
           </Step>
 
           <Step n="02" id="init" title="Initialize the client">
@@ -93,7 +93,7 @@ function Integrations() {
               Create a single Veto client and reuse it across your agent runtime. The secret key never
               leaves your server.
             </p>
-            <CodeBlock code={SDK_INIT} lang="ts" />
+            <VetoCodeBlock code={SDK_INIT} lang="ts" />
           </Step>
 
           <Step n="03" id="intercept" title="Wrap every risky action">
@@ -104,7 +104,7 @@ function Integrations() {
               </code>
               . Veto inspects, scores, and routes the action for approval — all in under 50ms.
             </p>
-            <CodeBlock code={INTERCEPT_SNIPPET} lang="ts" />
+            <VetoCodeBlock code={INTERCEPT_SNIPPET} lang="ts" />
 
             <div className="grid grid-cols-3 gap-px bg-border rounded-md overflow-hidden mt-4">
               {[
