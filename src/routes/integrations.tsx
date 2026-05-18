@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { AppShell } from "@/components/veto/AppShell";
+import { CodeBlock } from "@/components/veto/CodeBlock";
 
 export const Route = createFileRoute("/integrations")({
   head: () => ({ meta: [{ title: "Connect your agent — Veto" }] }),
