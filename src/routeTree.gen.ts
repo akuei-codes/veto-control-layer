@@ -14,6 +14,7 @@ import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as PoliciesRouteImport } from './routes/policies'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
@@ -46,6 +47,11 @@ const IntegrationsRoute = IntegrationsRouteImport.update({
 const DocsRoute = DocsRouteImport.update({
   id: '/docs',
   path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApprovalsRoute = ApprovalsRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  DashboardRoute: typeof DashboardRoute
   DocsRoute: typeof DocsRoute
   IntegrationsRoute: typeof IntegrationsRoute
   PoliciesRoute: typeof PoliciesRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/docs'
       fullPath: '/docs'
       preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/approvals': {
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   ApprovalsRoute: ApprovalsRoute,
+  DashboardRoute: DashboardRoute,
   DocsRoute: DocsRoute,
   IntegrationsRoute: IntegrationsRoute,
   PoliciesRoute: PoliciesRoute,

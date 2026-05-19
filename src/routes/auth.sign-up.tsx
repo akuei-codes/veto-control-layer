@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthShell, PrimaryButton, OAuthButton, TextInput, Divider } from "@/components/veto/AuthShell";
 import {
-  isMockAuthMode,
   signInWithGitHub,
   signInWithGoogle,
   signUpWithEmail,
@@ -71,11 +70,6 @@ function SignUp() {
         </>
       }
     >
-      {isMockAuthMode && (
-        <div className="mb-5 px-3 py-2 rounded-sm border hairline bg-surface/40 font-mono text-[10px] tracking-[0.18em] text-muted-foreground">
-          DEMO MODE — accounts are local-only
-        </div>
-      )}
       <div className="space-y-2.5">
         <OAuthButton provider="google" onClick={signInWithGoogle} />
         <OAuthButton provider="github" onClick={signInWithGitHub} />

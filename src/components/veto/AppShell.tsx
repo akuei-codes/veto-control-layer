@@ -65,7 +65,6 @@ export function AppShell({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <EnvPill mock={isMockMode} />
             {actions}
             <NotificationBell />
             <AccountMenu name={user?.name ?? workspace?.company ?? "Operator"} email={user?.email} />
@@ -78,20 +77,6 @@ export function AppShell({
   );
 }
 
-function EnvPill({ mock }: { mock: boolean }) {
-  return (
-    <span
-      className={`hidden sm:inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border font-mono text-[9px] tracking-[0.22em] uppercase ${
-        mock
-          ? "border-[var(--color-risk-medium)]/40 text-[var(--color-risk-medium)]"
-          : "border-foreground/15 text-muted-foreground"
-      }`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${mock ? "bg-[var(--color-risk-medium)]" : "bg-[var(--color-risk-low)]"}`} />
-      {mock ? "Demo Mode" : "Production"}
-    </span>
-  );
-}
 
 function NotificationBell() {
   const [open, setOpen] = useState(false);

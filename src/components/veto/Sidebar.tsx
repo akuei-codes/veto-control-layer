@@ -8,7 +8,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
   {
     title: "Operate",
     items: [
-      { to: "/", label: "Command Center", icon: "◎" },
+      { to: "/dashboard", label: "Command Center", icon: "◎" },
       { to: "/approvals", label: "Approvals", icon: "▮", badgeKey: "pending" },
       { to: "/replay", label: "Replay", icon: "◐" },
     ],
