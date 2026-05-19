@@ -109,7 +109,7 @@ function PoliciesPage() {
             <PolicyManagement policies={policies} onToggle={toggle} />
             <div className="mt-6 flex justify-end">
               <Link
-                to="/"
+                to="/dashboard"
                 className="font-mono text-[11px] uppercase tracking-[0.2em] px-5 py-2.5 bg-foreground text-background rounded-sm hover:bg-foreground/90"
               >
                 Open Command Center →

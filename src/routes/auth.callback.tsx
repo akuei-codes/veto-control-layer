@@ -25,7 +25,7 @@ function Callback() {
         }
         const workspace = await getUserWorkspace();
         if (cancelled) return;
-        navigate({ to: workspace ? "/" : "/onboarding/workspace" });
+        navigate({ to: workspace ? "/dashboard" : "/onboarding/workspace" });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to complete sign-in");
       }
