@@ -14,7 +14,7 @@ import {
 import { eventToAction } from "@/lib/veto-schema";
 import type { ActionStatus } from "@/lib/veto-schema";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Command Center — Veto" },

@@ -14,9 +14,9 @@ import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as PoliciesRouteImport } from './routes/policies'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingWorkspaceRouteImport } from './routes/onboarding.workspace'
 import { Route as AuthSignUpRouteImport } from './routes/auth.sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth.sign-in'
@@ -48,6 +48,11 @@ const DocsRoute = DocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
@@ -56,11 +61,6 @@ const ApprovalsRoute = ApprovalsRouteImport.update({
 const ApiKeysRoute = ApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingWorkspaceRoute = OnboardingWorkspaceRouteImport.update({
@@ -90,9 +90,9 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -105,9 +105,9 @@ export interface FileRoutesByFullPath {
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -121,9 +121,9 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
+  '/dashboard': typeof DashboardRoute
   '/docs': typeof DocsRoute
   '/integrations': typeof IntegrationsRoute
   '/policies': typeof PoliciesRoute
@@ -138,9 +138,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -153,9 +153,9 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -168,9 +168,9 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
   id:
     | '__root__'
-    | '/'
     | '/api-keys'
     | '/approvals'
+    | '/dashboard'
     | '/docs'
     | '/integrations'
     | '/policies'
@@ -184,9 +184,9 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  DashboardRoute: typeof DashboardRoute
   DocsRoute: typeof DocsRoute
   IntegrationsRoute: typeof IntegrationsRoute
   PoliciesRoute: typeof PoliciesRoute
@@ -236,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/approvals': {
       id: '/approvals'
       path: '/approvals'
@@ -248,13 +255,6 @@ declare module '@tanstack/react-router' {
       path: '/api-keys'
       fullPath: '/api-keys'
       preLoaderRoute: typeof ApiKeysRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding/workspace': {
@@ -296,9 +296,9 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   ApprovalsRoute: ApprovalsRoute,
+  DashboardRoute: DashboardRoute,
   DocsRoute: DocsRoute,
   IntegrationsRoute: IntegrationsRoute,
   PoliciesRoute: PoliciesRoute,
