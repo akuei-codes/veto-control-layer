@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthShell, PrimaryButton, OAuthButton, TextInput, Divider } from "@/components/veto/AuthShell";
 import {
-  isMockAuthMode,
   signInWithEmail,
   signInWithGitHub,
   signInWithGoogle,
