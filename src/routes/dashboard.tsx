@@ -80,7 +80,7 @@ function CommandCenter() {
                 transition={{ duration: 1.4, repeat: Infinity }}
               />
             )}
-            {demo.running ? "▮ Running…" : "▶ Run demo scenario"}
+            {demo.running ? "▮ Running…" : "▶ Run scenario"}
           </button>
         </>
       }
@@ -131,7 +131,7 @@ function CommandCenter() {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  {demo.resolved ? "RESOLVED" : "DEMO SCENARIO · production-db cleanup"}
+                  {demo.resolved ? "RESOLVED" : "INCIDENT · production-db cleanup"}
                 </div>
                 <div className="text-[13px] text-foreground/90">
                   {demo.resolved ?? demo.caption}
