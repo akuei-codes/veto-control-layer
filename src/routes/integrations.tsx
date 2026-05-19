@@ -249,7 +249,7 @@ function ConnectionStatus() {
         onClick={() => setConnected(true)}
         className="font-mono text-[10px] uppercase tracking-[0.2em] px-3.5 py-2 border hairline rounded-sm text-foreground/80 hover:border-foreground/40 hover:text-foreground transition-colors"
       >
-        ▶ Simulate test event
+        ▶ Send test event
       </button>
     </div>
   );
