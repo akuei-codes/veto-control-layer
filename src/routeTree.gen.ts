@@ -17,6 +17,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingWorkspaceRouteImport } from './routes/onboarding.workspace'
 import { Route as AuthSignUpRouteImport } from './routes/auth.sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth.sign-in'
@@ -63,6 +64,11 @@ const ApiKeysRoute = ApiKeysRouteImport.update({
   path: '/api-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingWorkspaceRoute = OnboardingWorkspaceRouteImport.update({
   id: '/onboarding/workspace',
   path: '/onboarding/workspace',
@@ -90,6 +96,7 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
@@ -121,6 +129,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
@@ -138,6 +147,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/api-keys'
     | '/approvals'
     | '/dashboard'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/api-keys'
     | '/approvals'
     | '/dashboard'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
   id:
     | '__root__'
+    | '/'
     | '/api-keys'
     | '/approvals'
     | '/dashboard'
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   ApprovalsRoute: typeof ApprovalsRoute
   DashboardRoute: typeof DashboardRoute
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding/workspace': {
       id: '/onboarding/workspace'
       path: '/onboarding/workspace'
@@ -296,6 +316,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   ApprovalsRoute: ApprovalsRoute,
   DashboardRoute: DashboardRoute,
